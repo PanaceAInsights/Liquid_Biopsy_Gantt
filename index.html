@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSW Liquid Biopsy Program - Comprehensive Interactive Timeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+        
+        /* View Toggle */
+        .view-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .view-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 10px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .view-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .view-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        /* Budget Summary */
+        .budget-summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        .budget-item {
+            text-align: center;
+        }
+        
+        .budget-value {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .budget-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Timeline Container */
+        .timeline-container {
+            position: relative;
+            max-height: 800px;
+            overflow: auto;
+            padding: 30px 20px;
+        }
+        
+        /* Phase View Styles */
+        .phase-view {
+            display: none;
+        }
+        
+        .phase-view.active {
+            display: block;
+        }
+        
+        .phase-card {
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, #3b82c4 0%, #1e40af 100%);
+            color: white;
+            padding: 20px;
+        }
+        
+        .phase-header.phase1 { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+        .phase-header.phase2 { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .phase-header.phase3 { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+        .phase-header.phase4 { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        
+        .phase-title {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .phase-period {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .phase-activities {
+            padding: 20px;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .activity-name {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .activity-details {
+            font-size: 13px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .activity-timeline {
+            font-size: 11px;
+            color: #007bff;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        
+        /* Quarterly View Styles */
+        .quarterly-view {
+            display: none;
+            overflow-x: auto;
+        }
+        
+        .quarterly-view.active {
+            display: block;
+        }
+        
+        .quarterly-grid {
+            display: table;
+            border-collapse: collapse;
+            min-width: 1400px;
+            width: 100%;
+        }
+        
+        .grid-row {
+            display: table-row;
+        }
+        
+        .grid-cell {
+            display: table-cell;
+            border: 1px solid #e9ecef;
+            padding: 4px;
+            position: relative;
+            vertical-align: middle;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+        
+        .grid-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 11px;
+            text-align: center;
+            color: #495057;
+            padding: 8px 4px;
+        }
+        
+        .grid-phase-header {
+            background: #1e3a5f;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+        }
+        
+        .grid-task-label {
+            background: white;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 10px;
+            min-width: 250px;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        .grid-phase-label {
+            background: #e8f4fd;
+            font-weight: bold;
+            color: #1e3a5f;
+            padding: 8px 10px;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+        
+        .task-bar {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+            font-size: 10px;
+            color: white;
+            white-space: nowrap;
+            z-index: 5;
+            overflow: visible;
+        }
+        
+        .bar-phase1 { background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); }
+        .bar-phase2 { background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); }
+        .bar-phase3 { background: linear-gradient(90deg, #ec4899 0%, #db2777 100%); }
+        .bar-phase4 { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+        
+        /* Monthly View Styles */
+        .monthly-view {
+            display: none;
+            overflow: auto;
+        }
+        
+        .monthly-view.active {
+            display: block;
+        }
+        
+        .monthly-grid {
+            display: table;
+            border-collapse: collapse;
+            min-width: 2000px;
+            width: 100%;
+        }
+        
+        .month-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 9px;
+            text-align: center;
+            color: #495057;
+            padding: 4px 2px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            height: 60px;
+            min-width: 25px;
+        }
+        
+        /* Scrollbar styling */
+        .timeline-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .timeline-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .timeline-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .timeline-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Key Deliverables */
+        .deliverables-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .deliverables-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .deliverables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .deliverable-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .deliverable-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .deliverable-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+        
+        .deliverable-desc {
+            font-size: 13px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1e3a5f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>NSW Liquid Biopsy Translational Program</h1>
+            <div class="header-subtitle">Cancer Institute NSW TPG Grant 2025/TPG2178 | Comprehensive Implementation Timeline 2026-2030</div>
+        </div>
+        
+        <!-- View Controls -->
+        <div class="view-controls">
+            <span class="view-label">View Mode:</span>
+            <div class="view-toggle">
+                <button class="view-btn" onclick="switchView('phase')">Phase View</button>
+                <button class="view-btn active" onclick="switchView('quarterly')">Quarterly View</button>
+                <button class="view-btn" onclick="switchView('monthly')">Monthly View</button>
+            </div>
+        </div>
+        
+        <!-- Budget Summary -->
+        <div class="budget-summary">
+            <div class="budget-item">
+                <div class="budget-value">$4.69M</div>
+                <div class="budget-label">Total Cash</div>
+            </div>
+            <div class="budget-item">
+                <div class="budget-value">$2.19M</div>
+                <div class="budget-label">In-Kind Support</div>
+            </div>
+            <div class="budget-item">
+                <div class="budget-value">$6.88M</div>
+                <div class="budget-label">Total Value</div>
+            </div>
+            <div class="budget-item">
+                <div class="budget-value">5 Years</div>
+                <div class="budget-label">Duration</div>
+            </div>
+        </div>
+        
+        <!-- Timeline Container -->
+        <div class="timeline-container">
+            
+            <!-- Phase View -->
+            <div class="phase-view" id="phaseView">
+                <!-- Phase 1 -->
+                <div class="phase-card">
+                    <div class="phase-header phase1">
+                        <div class="phase-title">Phase 1: Foundation & Development (T1 Translation)</div>
+                        <div class="phase-period">Year 1 (Jan 2026 - Dec 2026) | Budget: $750,000</div>
+                    </div>
+                    <div class="phase-activities">
+                        <div class="activity-item">
+                            <div class="activity-name">Ethics & Governance Framework Development</div>
+                            <div class="activity-details">Obtain HREC ethics approval for statewide liquid biopsy biobank. Establish governance framework for all participating sites including data management protocols, patient consent procedures, and sample tracking systems.</div>
+                            <div class="activity-timeline">Timeline: Q1 2026 (Jan-Mar)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">NSW Health Statewide Biobank Partnership</div>
+                            <div class="activity-details">Establish formal partnership with NSW Health Statewide Biobank. Set up infrastructure for sample collection, processing, and storage. Implement ISO 9001 quality standards.</div>
+                            <div class="activity-timeline">Timeline: Q2 2026 (Apr-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Standard Operating Procedures Development</div>
+                            <div class="activity-details">Develop comprehensive SOPs for blood collection, plasma separation, cfDNA extraction, and sample storage. Create training materials and certification programs for collection center staff.</div>
+                            <div class="activity-timeline">Timeline: Q2 2026 (Apr-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Fragmentomics Protocol Development</div>
+                            <div class="activity-details">Develop novel fragmentomics assays leveraging machine learning algorithms. Establish ctDNA/RNA extraction protocols with sensitivity targets of &lt;0.1% mutant allele frequency.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2026 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">AI/Machine Learning Platform Development</div>
+                            <div class="activity-details">Build AI/ML infrastructure for fragment pattern analysis. Train algorithms on existing cancer datasets. Develop predictive models for multi-cancer early detection.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2026 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">ESR1 Mutation Testing Implementation</div>
+                            <div class="activity-details">Implement ESR1 mutation testing for metastatic breast cancer patients. Target $55 disposable cost per test. Prepare documentation for Medicare rebate application (MBS item).</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2026 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">NSCLC Panel Development</div>
+                            <div class="activity-details">Develop comprehensive NSCLC liquid biopsy panel covering EGFR, ALK, ROS1, BRAF, MET, RET, and NTRK alterations. Validate against tissue biopsy standards.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2026 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">AGRF Partnership Establishment</div>
+                            <div class="activity-details">Formalize partnership with Australian Genome Research Facility for initial sequencing capacity. Establish data transfer protocols and quality metrics.</div>
+                            <div class="activity-timeline">Timeline: Q2 2026 (Apr-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Staff Recruitment & Training Program</div>
+                            <div class="activity-details">Recruit 2 postdoctoral researchers, 3 PhD students, and 4 technical staff. Initiate comprehensive training program on liquid biopsy techniques and interpretation.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2026 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Consumer Advisory Committee Formation</div>
+                            <div class="activity-details">Establish Consumer Governance Committee with 4 patient representatives and 3 clinical investigators. Develop patient engagement framework and communication materials.</div>
+                            <div class="activity-timeline">Timeline: Q2 2026 (Apr-Jun)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 2 -->
+                <div class="phase-card">
+                    <div class="phase-header phase2">
+                        <div class="phase-title">Phase 2: Infrastructure & Validation (T2 Translation)</div>
+                        <div class="phase-period">Years 2-3 (Jan 2027 - Dec 2028) | Budget: $1,500,000</div>
+                    </div>
+                    <div class="phase-activities">
+                        <div class="activity-item">
+                            <div class="activity-name">Next-Generation Sequencing Platform Procurement</div>
+                            <div class="activity-details">Purchase and install Illumina NovaSeq 6000 and NextSeq 2000 platforms at Kolling Institute. Establish local sequencing capacity to eliminate dependence on Victorian facilities.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2027 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Automated cfDNA Extraction Systems</div>
+                            <div class="activity-details">Install QIASymphony SP/AS automated extraction systems. Validate high-throughput processing protocols for 200+ samples per day. Achieve 24-hour turnaround capability.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2027 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Digital PCR Platform Installation</div>
+                            <div class="activity-details">Install Bio-Rad QX200 digital PCR systems for ultra-sensitive mutation detection. Validate for clinical use with detection limits of 0.01% mutant allele frequency.</div>
+                            <div class="activity-timeline">Timeline: Q2 2027 (Apr-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Laboratory Information Management System</div>
+                            <div class="activity-details">Implement LIMS for sample tracking, workflow management, and results reporting. Integrate with NSW Health Pathology systems and electronic medical records.</div>
+                            <div class="activity-timeline">Timeline: Q3 2027 (Jul-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Validation Study - Breast Cancer</div>
+                            <div class="activity-details">Validate ESR1 mutation testing in 500 metastatic breast cancer patients. Compare concordance with tissue biopsy. Establish clinical decision thresholds.</div>
+                            <div class="activity-timeline">Timeline: Q4 2027 - Q2 2028 (Oct 2027 - Jun 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Validation Study - Lung Cancer</div>
+                            <div class="activity-details">Validate NSCLC panel in 800 patients. Demonstrate 95% concordance with tissue testing. Document improved detection of resistance mutations.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q3 2028 (Jan-Sep 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Colorectal Cancer Panel Development</div>
+                            <div class="activity-details">Develop liquid biopsy panel for colorectal cancer including KRAS, NRAS, BRAF, and microsatellite instability detection. Validate for treatment selection and monitoring.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q4 2028 (Apr-Dec 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Multi-Cancer Early Detection Development</div>
+                            <div class="activity-details">Develop MCED assay combining fragmentomics, methylomics, and genomics. Target detection of 10+ cancer types with 99.5% specificity.</div>
+                            <div class="activity-timeline">Timeline: Q3 2027 - Q4 2028 (Jul 2027 - Dec 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Minimal Residual Disease Assay Development</div>
+                            <div class="activity-details">Develop tumor-informed MRD assays for post-surgical monitoring. Validate in 300 patients across multiple cancer types. Establish recurrence prediction models.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q4 2028 (Jan-Dec 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Quality Management System Implementation</div>
+                            <div class="activity-details">Implement ISO 15189 medical laboratory quality standards. Develop internal quality control programs and participate in external quality assessment schemes.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2028 (Jul-Dec 2028)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Bioinformatics Pipeline Development</div>
+                            <div class="activity-details">Develop automated analysis pipelines for variant calling, fragment analysis, and clinical interpretation. Implement cloud-based computing infrastructure.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q4 2027 (Apr-Dec 2027)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Memorial Sloan Kettering Collaboration</div>
+                            <div class="activity-details">Establish research collaboration with MSK-ACCESS liquid biopsy program. Exchange protocols and validate international standards.</div>
+                            <div class="activity-timeline">Timeline: Q1 2028 (Jan-Mar 2028)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 3 -->
+                <div class="phase-card">
+                    <div class="phase-header phase3">
+                        <div class="phase-title">Phase 3: Accreditation & Clinical Integration</div>
+                        <div class="phase-period">Years 3-4 (Jan 2028 - Dec 2029) | Budget: $1,500,000</div>
+                    </div>
+                    <div class="phase-activities">
+                        <div class="activity-item">
+                            <div class="activity-name">NATA Accreditation Preparation</div>
+                            <div class="activity-details">Prepare comprehensive documentation for NATA accreditation including validation studies, quality procedures, and proficiency testing results.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2029 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">NATA Assessment & Accreditation</div>
+                            <div class="activity-details">Complete NATA assessment process. Achieve accreditation for liquid biopsy testing enabling Medicare billing eligibility.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q3 2029 (Apr-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Trial Integration - AGITG Studies</div>
+                            <div class="activity-details">Partner with Australasian Gastro-Intestinal Trials Group to add liquid biopsy arms to 3 active trials. Enroll 200+ GI cancer patients.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q4 2029 (Apr-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Trial Integration - Breast Cancer</div>
+                            <div class="activity-details">Integrate liquid biopsy monitoring into BCT-ANZ trials. Focus on treatment resistance monitoring and early relapse detection.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2029 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Trial Integration - Lung Cancer</div>
+                            <div class="activity-details">Partner with ALTG for liquid biopsy integration in immunotherapy trials. Monitor response and resistance to checkpoint inhibitors.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q4 2029 (Apr-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Healthcare Professional Training Program</div>
+                            <div class="activity-details">Train 100+ oncologists and pathologists on liquid biopsy interpretation. Develop CPD-accredited education modules. Create clinical decision support tools.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q4 2029 (Jan-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">MyLiquidBiopsy Digital Platform Development</div>
+                            <div class="activity-details">Co-design patient portal with consumer committee. Features include result tracking, education resources, and clinician messaging.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q3 2029 (Jan-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Regional Champion Network Establishment</div>
+                            <div class="activity-details">Recruit and train 15 regional consumer champions including Aboriginal health workers and culturally diverse community leaders.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q3 2029 (Apr-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Patient Education Materials Development</div>
+                            <div class="activity-details">Create culturally appropriate education materials in Arabic, Mandarin, Vietnamese, Hindi, and English. Develop visual aids and video content.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2029 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Medicare Application Preparation</div>
+                            <div class="activity-details">Prepare MSAC applications for ESR1 and NSCLC liquid biopsy tests. Compile health economic data demonstrating cost-effectiveness.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2029 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Pilot Implementation - Sydney LHD</div>
+                            <div class="activity-details">Launch pilot liquid biopsy service at Royal Prince Alfred Hospital. Test ordering systems, sample logistics, and result reporting.</div>
+                            <div class="activity-timeline">Timeline: Q4 2029 (Oct-Dec)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 4 -->
+                <div class="phase-card">
+                    <div class="phase-header phase4">
+                        <div class="phase-title">Phase 4: Statewide Implementation & Sustainability (T3 Translation)</div>
+                        <div class="phase-period">Years 4-5 (Jan 2029 - Dec 2030) | Budget: $1,500,000</div>
+                    </div>
+                    <div class="phase-activities">
+                        <div class="activity-item">
+                            <div class="activity-name">Northern NSW LHD Rollout</div>
+                            <div class="activity-details">Implement liquid biopsy services across Northern NSW including Lismore, Tweed, and Grafton. Establish collection points at 50+ centers.</div>
+                            <div class="activity-timeline">Timeline: Q1 2030 (Jan-Mar)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Western NSW LHD Rollout</div>
+                            <div class="activity-details">Expand services to Western NSW including Dubbo, Orange, and Broken Hill. Implement sample transport logistics for remote areas.</div>
+                            <div class="activity-timeline">Timeline: Q1-Q2 2030 (Jan-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Hunter New England LHD Rollout</div>
+                            <div class="activity-details">Deploy services across Hunter New England region. Establish hub laboratory at John Hunter Hospital.</div>
+                            <div class="activity-timeline">Timeline: Q2 2030 (Apr-Jun)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">South Eastern Sydney & Illawarra Rollout</div>
+                            <div class="activity-details">Complete statewide coverage with implementation in remaining Sydney metro and regional areas.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q3 2030 (Apr-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Medicare Item Number Implementation</div>
+                            <div class="activity-details">Operationalize Medicare billing for approved liquid biopsy tests. Establish billing infrastructure and provider education.</div>
+                            <div class="activity-timeline">Timeline: Q3 2030 (Jul-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Private Billing System Launch</div>
+                            <div class="activity-details">Establish private patient billing for non-Medicare covered tests. Implement online payment systems and insurance interfaces.</div>
+                            <div class="activity-timeline">Timeline: Q3 2030 (Jul-Sep)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Clinical Trial Support Service</div>
+                            <div class="activity-details">Launch fee-for-service liquid biopsy support for pharmaceutical trials. Target 20+ active trials with 2000+ patients annually.</div>
+                            <div class="activity-timeline">Timeline: Q2-Q4 2030 (Apr-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Performance Monitoring Dashboard</div>
+                            <div class="activity-details">Launch real-time performance dashboard tracking turnaround times, quality metrics, and patient outcomes across all sites.</div>
+                            <div class="activity-timeline">Timeline: Q1 2030 (Jan-Mar)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Health Economic Evaluation</div>
+                            <div class="activity-details">Complete comprehensive health economic analysis demonstrating $50M annual savings through avoided biopsies and optimized treatments.</div>
+                            <div class="activity-timeline">Timeline: Q3-Q4 2030 (Jul-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">National Expansion Framework</div>
+                            <div class="activity-details">Develop framework for national rollout including partnerships with interstate pathology providers and cancer centers.</div>
+                            <div class="activity-timeline">Timeline: Q4 2030 (Oct-Dec)</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-name">Sustainability Achievement</div>
+                            <div class="activity-details">Achieve financial break-even through triple revenue model. Document sustainability framework for ongoing operations.</div>
+                            <div class="activity-timeline">Timeline: Q4 2030 (Oct-Dec)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quarterly View -->
+            <div class="quarterly-view active" id="quarterlyView">
+                <table class="quarterly-grid">
+                    <!-- Header Rows -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-header" style="min-width: 250px;">Activity</td>
+                        <td class="grid-cell grid-header">Q1'26</td>
+                        <td class="grid-cell grid-header">Q2'26</td>
+                        <td class="grid-cell grid-header">Q3'26</td>
+                        <td class="grid-cell grid-header">Q4'26</td>
+                        <td class="grid-cell grid-header">Q1'27</td>
+                        <td class="grid-cell grid-header">Q2'27</td>
+                        <td class="grid-cell grid-header">Q3'27</td>
+                        <td class="grid-cell grid-header">Q4'27</td>
+                        <td class="grid-cell grid-header">Q1'28</td>
+                        <td class="grid-cell grid-header">Q2'28</td>
+                        <td class="grid-cell grid-header">Q3'28</td>
+                        <td class="grid-cell grid-header">Q4'28</td>
+                        <td class="grid-cell grid-header">Q1'29</td>
+                        <td class="grid-cell grid-header">Q2'29</td>
+                        <td class="grid-cell grid-header">Q3'29</td>
+                        <td class="grid-cell grid-header">Q4'29</td>
+                        <td class="grid-cell grid-header">Q1'30</td>
+                        <td class="grid-cell grid-header">Q2'30</td>
+                        <td class="grid-cell grid-header">Q3'30</td>
+                        <td class="grid-cell grid-header">Q4'30</td>
+                    </tr>
+                    
+                    <!-- Phase Headers -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-header">PHASES</td>
+                        <td class="grid-cell grid-phase-header" colspan="4" style="background: #0ea5e9;">Phase 1: Foundation</td>
+                        <td class="grid-cell grid-phase-header" colspan="8" style="background: #8b5cf6;">Phase 2: Infrastructure & Validation</td>
+                        <td class="grid-cell grid-phase-header" colspan="4" style="background: #ec4899;">Phase 3: Clinical Integration</td>
+                        <td class="grid-cell grid-phase-header" colspan="4" style="background: #10b981;">Phase 4: Implementation</td>
+                    </tr>
+                    
+                    <!-- Phase 1 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-label">Phase 1: Foundation & Development</td>
+                        <td class="grid-cell" colspan="20"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Ethics & Governance</td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 45px;">Ethics</div></td>
+                        <td class="grid-cell" colspan="19"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Biobank Partnership</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 45px;">Setup</div></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ SOPs Development</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 45px;">SOPs</div></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Staff Recruitment</td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 90px;">Recruitment</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Consumer Committee</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 45px;">Setup</div></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ AGRF Partnership</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 45px;">Partner</div></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Fragmentomics Development</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 90px;">Fragment</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="16"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ AI/ML Platform</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 90px;">AI/ML</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="16"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ ESR1 Testing</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 90px;">ESR1</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="16"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">└─ NSCLC Panel</td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 90px;">NSCLC</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="16"></td>
+                    </tr>
+                    
+                    <!-- Phase 2 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-label">Phase 2: Infrastructure & Validation</td>
+                        <td class="grid-cell" colspan="20"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ NGS Procurement</td>
+                        <td class="grid-cell" colspan="4"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 90px;">NGS</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="14"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ cfDNA Systems</td>
+                        <td class="grid-cell" colspan="4"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 90px;">cfDNA</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="14"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Digital PCR</td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 45px;">dPCR</div></td>
+                        <td class="grid-cell" colspan="14"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ LIMS Implementation</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 45px;">LIMS</div></td>
+                        <td class="grid-cell" colspan="13"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Bioinformatics Pipeline</td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 135px;">Bioinformatics</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Breast Cancer Validation</td>
+                        <td class="grid-cell" colspan="7"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 135px;">BC Valid</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="10"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Lung Cancer Validation</td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 135px;">LC Valid</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="9"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ CRC Panel Development</td>
+                        <td class="grid-cell" colspan="9"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 135px;">CRC Dev</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="8"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ MCED Development</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 270px;">Multi-Cancer Detection</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="7"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ MRD Assay Development</td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 180px;">MRD Assays</div></td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell" colspan="7"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ MSK Collaboration</td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 45px;">MSK</div></td>
+                        <td class="grid-cell" colspan="11"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">└─ QMS Implementation</td>
+                        <td class="grid-cell" colspan="10"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 90px;">Quality</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="8"></td>
+                    </tr>
+                    
+                    <!-- Phase 3 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-label">Phase 3: Accreditation & Clinical</td>
+                        <td class="grid-cell" colspan="20"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ NATA Preparation</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">Prep</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="6"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ NATA Accreditation</td>
+                        <td class="grid-cell" colspan="13"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">NATA</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="5"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Patient Education Materials</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">Education</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="6"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Healthcare Training</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 180px;">HCP Training</div></td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Digital Platform</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 135px;">MyLiquidBx</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="5"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Regional Champions</td>
+                        <td class="grid-cell" colspan="13"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">Champions</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="5"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ AGITG Trials</td>
+                        <td class="grid-cell" colspan="13"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 135px;">GI Trials</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Breast Trials</td>
+                        <td class="grid-cell" colspan="14"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">BC Trials</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Lung Trials</td>
+                        <td class="grid-cell" colspan="13"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 135px;">Lung Trials</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Medicare Applications</td>
+                        <td class="grid-cell" colspan="14"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 90px;">MSAC</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">└─ Sydney LHD Pilot</td>
+                        <td class="grid-cell" colspan="15"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 45px;">Pilot</div></td>
+                        <td class="grid-cell" colspan="4"></td>
+                    </tr>
+                    
+                    <!-- Phase 4 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-label">Phase 4: Implementation & Scale</td>
+                        <td class="grid-cell" colspan="20"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Performance Dashboard</td>
+                        <td class="grid-cell" colspan="16"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">Dash</div></td>
+                        <td class="grid-cell" colspan="3"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Northern NSW Rollout</td>
+                        <td class="grid-cell" colspan="16"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">North</div></td>
+                        <td class="grid-cell" colspan="3"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Western NSW Rollout</td>
+                        <td class="grid-cell" colspan="16"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 90px;">West</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell" colspan="2"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Hunter NE Rollout</td>
+                        <td class="grid-cell" colspan="17"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">HNE</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ SE Sydney/Illawarra</td>
+                        <td class="grid-cell" colspan="17"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 90px;">SE/ILL</div></td>
+                        <td class="grid-cell"></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Clinical Trial Service</td>
+                        <td class="grid-cell" colspan="17"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 135px;">Trial Service</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Medicare Integration</td>
+                        <td class="grid-cell" colspan="18"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">MBS</div></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Private Billing</td>
+                        <td class="grid-cell" colspan="18"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">Bill</div></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ Health Economics</td>
+                        <td class="grid-cell" colspan="18"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 90px;">HE Study</div></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">├─ National Framework</td>
+                        <td class="grid-cell" colspan="19"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">Natl</div></td>
+                    </tr>
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">└─ Sustainability</td>
+                        <td class="grid-cell" colspan="19"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 45px;">$$</div></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Monthly View -->
+            <div class="monthly-view" id="monthlyView">
+                <table class="monthly-grid">
+                    <!-- Generate month headers -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-header" style="min-width: 250px; writing-mode: horizontal-tb;">Activity</td>
+                        <!-- 2026 -->
+                        <td class="grid-cell month-header">Jan'26</td>
+                        <td class="grid-cell month-header">Feb'26</td>
+                        <td class="grid-cell month-header">Mar'26</td>
+                        <td class="grid-cell month-header">Apr'26</td>
+                        <td class="grid-cell month-header">May'26</td>
+                        <td class="grid-cell month-header">Jun'26</td>
+                        <td class="grid-cell month-header">Jul'26</td>
+                        <td class="grid-cell month-header">Aug'26</td>
+                        <td class="grid-cell month-header">Sep'26</td>
+                        <td class="grid-cell month-header">Oct'26</td>
+                        <td class="grid-cell month-header">Nov'26</td>
+                        <td class="grid-cell month-header">Dec'26</td>
+                        <!-- 2027 -->
+                        <td class="grid-cell month-header">Jan'27</td>
+                        <td class="grid-cell month-header">Feb'27</td>
+                        <td class="grid-cell month-header">Mar'27</td>
+                        <td class="grid-cell month-header">Apr'27</td>
+                        <td class="grid-cell month-header">May'27</td>
+                        <td class="grid-cell month-header">Jun'27</td>
+                        <td class="grid-cell month-header">Jul'27</td>
+                        <td class="grid-cell month-header">Aug'27</td>
+                        <td class="grid-cell month-header">Sep'27</td>
+                        <td class="grid-cell month-header">Oct'27</td>
+                        <td class="grid-cell month-header">Nov'27</td>
+                        <td class="grid-cell month-header">Dec'27</td>
+                        <!-- 2028 -->
+                        <td class="grid-cell month-header">Jan'28</td>
+                        <td class="grid-cell month-header">Feb'28</td>
+                        <td class="grid-cell month-header">Mar'28</td>
+                        <td class="grid-cell month-header">Apr'28</td>
+                        <td class="grid-cell month-header">May'28</td>
+                        <td class="grid-cell month-header">Jun'28</td>
+                        <td class="grid-cell month-header">Jul'28</td>
+                        <td class="grid-cell month-header">Aug'28</td>
+                        <td class="grid-cell month-header">Sep'28</td>
+                        <td class="grid-cell month-header">Oct'28</td>
+                        <td class="grid-cell month-header">Nov'28</td>
+                        <td class="grid-cell month-header">Dec'28</td>
+                        <!-- 2029 -->
+                        <td class="grid-cell month-header">Jan'29</td>
+                        <td class="grid-cell month-header">Feb'29</td>
+                        <td class="grid-cell month-header">Mar'29</td>
+                        <td class="grid-cell month-header">Apr'29</td>
+                        <td class="grid-cell month-header">May'29</td>
+                        <td class="grid-cell month-header">Jun'29</td>
+                        <td class="grid-cell month-header">Jul'29</td>
+                        <td class="grid-cell month-header">Aug'29</td>
+                        <td class="grid-cell month-header">Sep'29</td>
+                        <td class="grid-cell month-header">Oct'29</td>
+                        <td class="grid-cell month-header">Nov'29</td>
+                        <td class="grid-cell month-header">Dec'29</td>
+                        <!-- 2030 -->
+                        <td class="grid-cell month-header">Jan'30</td>
+                        <td class="grid-cell month-header">Feb'30</td>
+                        <td class="grid-cell month-header">Mar'30</td>
+                        <td class="grid-cell month-header">Apr'30</td>
+                        <td class="grid-cell month-header">May'30</td>
+                        <td class="grid-cell month-header">Jun'30</td>
+                        <td class="grid-cell month-header">Jul'30</td>
+                        <td class="grid-cell month-header">Aug'30</td>
+                        <td class="grid-cell month-header">Sep'30</td>
+                        <td class="grid-cell month-header">Oct'30</td>
+                        <td class="grid-cell month-header">Nov'30</td>
+                        <td class="grid-cell month-header">Dec'30</td>
+                    </tr>
+                    
+                    <!-- Phase Headers -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-phase-header">PHASES</td>
+                        <td class="grid-cell grid-phase-header" colspan="12" style="background: #0ea5e9;">Phase 1</td>
+                        <td class="grid-cell grid-phase-header" colspan="24" style="background: #8b5cf6;">Phase 2</td>
+                        <td class="grid-cell grid-phase-header" colspan="12" style="background: #ec4899;">Phase 3</td>
+                        <td class="grid-cell grid-phase-header" colspan="12" style="background: #10b981;">Phase 4</td>
+                    </tr>
+                    
+                    <!-- Activities - Monthly precision -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Ethics & Governance</td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 70px; font-size: 9px;">Ethics</div></td>
+                        <td class="grid-cell" colspan="59"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Staff Recruitment</td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 140px; font-size: 9px;">Recruitment</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="54"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Biobank Partnership</td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 70px; font-size: 9px;">Biobank</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="54"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">SOPs Development</td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 70px; font-size: 9px;">SOPs</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="54"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Consumer Committee</td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 70px; font-size: 9px;">Committee</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="54"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">AGRF Partnership</td>
+                        <td class="grid-cell" colspan="3"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 70px; font-size: 9px;">AGRF</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="54"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Fragmentomics Development</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 140px; font-size: 9px;">Fragmentomics</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="48"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">AI/ML Platform</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 140px; font-size: 9px;">AI/ML</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="48"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">ESR1 Testing</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 140px; font-size: 9px;">ESR1</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="48"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">NSCLC Panel</td>
+                        <td class="grid-cell" colspan="6"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase1" style="width: 140px; font-size: 9px;">NSCLC</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="48"></td>
+                    </tr>
+                    
+                    <!-- Phase 2 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">NGS Procurement</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 140px; font-size: 9px;">NGS Purchase</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="42"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">cfDNA Systems</td>
+                        <td class="grid-cell" colspan="12"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 140px; font-size: 9px;">cfDNA Extract</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="42"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Digital PCR</td>
+                        <td class="grid-cell" colspan="15"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 70px; font-size: 9px;">dPCR</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="42"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">LIMS Implementation</td>
+                        <td class="grid-cell" colspan="18"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 70px; font-size: 9px;">LIMS</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="39"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Bioinformatics Pipeline</td>
+                        <td class="grid-cell" colspan="15"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 210px; font-size: 9px;">Bioinformatics</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="36"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Breast Cancer Validation</td>
+                        <td class="grid-cell" colspan="21"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 210px; font-size: 9px;">BC Validation</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="30"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Lung Cancer Validation</td>
+                        <td class="grid-cell" colspan="24"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 210px; font-size: 9px;">LC Validation</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="27"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">CRC Panel Development</td>
+                        <td class="grid-cell" colspan="27"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 210px; font-size: 9px;">CRC Panel</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="24"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">MCED Development</td>
+                        <td class="grid-cell" colspan="18"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 450px; font-size: 9px;">Multi-Cancer Early Detection</div></td>
+                        <td class="grid-cell" colspan="17"></td>
+                        <td class="grid-cell" colspan="24"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">MRD Assays</td>
+                        <td class="grid-cell" colspan="24"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 320px; font-size: 9px;">Minimal Residual Disease</div></td>
+                        <td class="grid-cell" colspan="11"></td>
+                        <td class="grid-cell" colspan="24"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">MSK Collaboration</td>
+                        <td class="grid-cell" colspan="24"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 70px; font-size: 9px;">MSK</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="33"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Quality Management</td>
+                        <td class="grid-cell" colspan="30"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase2" style="width: 140px; font-size: 9px;">QMS</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="24"></td>
+                    </tr>
+                    
+                    <!-- Phase 3 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">NATA Preparation</td>
+                        <td class="grid-cell" colspan="36"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">NATA Prep</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">NATA Accreditation</td>
+                        <td class="grid-cell" colspan="39"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">Accreditation</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="15"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Patient Education</td>
+                        <td class="grid-cell" colspan="36"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">Education</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="18"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Healthcare Training</td>
+                        <td class="grid-cell" colspan="36"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 320px; font-size: 9px;">HCP Training Program</div></td>
+                        <td class="grid-cell" colspan="11"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Digital Platform</td>
+                        <td class="grid-cell" colspan="36"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 210px; font-size: 9px;">MyLiquidBiopsy</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="15"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Regional Champions</td>
+                        <td class="grid-cell" colspan="39"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">Champions</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="15"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Clinical Trials - GI</td>
+                        <td class="grid-cell" colspan="39"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 210px; font-size: 9px;">AGITG Trials</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Clinical Trials - Breast</td>
+                        <td class="grid-cell" colspan="42"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">BC Trials</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Clinical Trials - Lung</td>
+                        <td class="grid-cell" colspan="39"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 210px; font-size: 9px;">ALTG Trials</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Medicare Applications</td>
+                        <td class="grid-cell" colspan="42"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 140px; font-size: 9px;">MSAC Apps</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Sydney LHD Pilot</td>
+                        <td class="grid-cell" colspan="45"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase3" style="width: 70px; font-size: 9px;">Pilot</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="12"></td>
+                    </tr>
+                    
+                    <!-- Phase 4 Activities -->
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Performance Dashboard</td>
+                        <td class="grid-cell" colspan="48"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">Dashboard</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="9"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Northern NSW Rollout</td>
+                        <td class="grid-cell" colspan="48"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">North</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="9"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Western NSW Rollout</td>
+                        <td class="grid-cell" colspan="48"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 140px; font-size: 9px;">Western NSW</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="6"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Hunter NE Rollout</td>
+                        <td class="grid-cell" colspan="51"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">HNE</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="6"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">SE Sydney/Illawarra</td>
+                        <td class="grid-cell" colspan="51"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 140px; font-size: 9px;">SE/Illawarra</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell" colspan="3"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Clinical Trial Service</td>
+                        <td class="grid-cell" colspan="51"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 210px; font-size: 9px;">Trial Service</div></td>
+                        <td class="grid-cell" colspan="8"></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Medicare Integration</td>
+                        <td class="grid-cell" colspan="54"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">MBS</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="3"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Private Billing</td>
+                        <td class="grid-cell" colspan="54"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">Billing</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                        <td class="grid-cell" colspan="3"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Health Economics Study</td>
+                        <td class="grid-cell" colspan="54"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 140px; font-size: 9px;">HE Analysis</div></td>
+                        <td class="grid-cell" colspan="5"></td>
+                        <td class="grid-cell"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">National Framework</td>
+                        <td class="grid-cell" colspan="57"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">National</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                    </tr>
+                    
+                    <tr class="grid-row">
+                        <td class="grid-cell grid-task-label">Sustainability Achieved</td>
+                        <td class="grid-cell" colspan="57"></td>
+                        <td class="grid-cell"><div class="task-bar bar-phase4" style="width: 70px; font-size: 9px;">Break-even</div></td>
+                        <td class="grid-cell" colspan="2"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Key Deliverables -->
+        <div class="deliverables-section">
+            <div class="deliverables-title">Key Program Deliverables</div>
+            <div class="deliverables-grid">
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🧬</div>
+                    <div class="deliverable-title">Fragmentomics Innovation</div>
+                    <div class="deliverable-desc">World-first AI-powered DNA fragment analysis for multi-cancer early detection with &lt;0.1% detection limit</div>
+                </div>
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🏥</div>
+                    <div class="deliverable-title">Statewide Access</div>
+                    <div class="deliverable-desc">700+ collection centers ensuring equitable access for all NSW patients including rural and remote areas</div>
+                </div>
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">💰</div>
+                    <div class="deliverable-title">Cost Reduction</div>
+                    <div class="deliverable-desc">40% reduction in testing costs from $1,116 to $676 per test through local processing</div>
+                </div>
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🔬</div>
+                    <div class="deliverable-title">NATA Accreditation</div>
+                    <div class="deliverable-desc">Full clinical accreditation enabling Medicare rebates and quality assurance</div>
+                </div>
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">📊</div>
+                    <div class="deliverable-title">Clinical Trials</div>
+                    <div class="deliverable-desc">1,000+ patients enrolled in liquid biopsy clinical trials across multiple cancer types</div>
+                </div>
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🎯</div>
+                    <div class="deliverable-title">Health Equity</div>
+                    <div class="deliverable-desc">Consumer-led governance, culturally appropriate materials in 5 languages, Aboriginal health partnerships</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            NSW Liquid Biopsy Translational Program | Cancer Institute NSW TPG Grant 2025/TPG2178<br>
+            Chief Investigator: Professor Anthony Gill | University of Sydney | Kolling Institute
+        </div>
+    </div>
+    
+    <script>
+        function switchView(view) {
+            // Update button states
+            const buttons = document.querySelectorAll('.view-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all views
+            document.getElementById('phaseView').classList.remove('active');
+            document.getElementById('quarterlyView').classList.remove('active');
+            document.getElementById('monthlyView').classList.remove('active');
+            
+            // Show selected view
+            if (view === 'phase') {
+                document.getElementById('phaseView').classList.add('active');
+            } else if (view === 'quarterly') {
+                document.getElementById('quarterlyView').classList.add('active');
+            } else if (view === 'monthly') {
+                document.getElementById('monthlyView').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
